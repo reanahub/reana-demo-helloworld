@@ -30,41 +30,6 @@ import os
 import sys
 import time
 
-
-def main(args=None):
-    """Launch main routine."""
-    if args is None:
-        args = sys.argv[1:]
-
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument("-n", "--name",
-                        help="Name that should be greeted. \n \
-                              Defaults to 'World'.",
-                        default="World",
-                        required=False)
-
-    parser.add_argument("-o", "--outputfile",
-                        help="Relative path to the file where greeting \
-                              should be stored. \n \
-                              Defaults to 'output/output.txt'.",
-                        default="output/output.txt",
-                        required=False)
-
-    parser.add_argument("-s", "--sleeptimer",
-                        help="Waiting period (in seconds) taken between \
-                              writing of each character of greeting. \
-                              Defaults to '1.0' (seconds).",
-                        default=1.0,
-                        type=float,
-                        required=False)
-    parsed_args = parser.parse_args(args)
-
-    hello(parsed_args.name, parsed_args.outputfile, parsed_args.sleeptimer)
-
-    return
-
-
 def hello(name="World", outputfile="output/output.txt", sleeptimer=1.0):
     """Greeter function of REANA-Demo-HelloWorld.
 
@@ -105,6 +70,32 @@ def hello(name="World", outputfile="output/output.txt", sleeptimer=1.0):
     f.close()
     return
 
+if __name__ == '__main__':
+    args = sys.argv[1:]
 
-if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("-n", "--name",
+                        help="Name that should be greeted. \n \
+                                  Defaults to 'World'.",
+                        default="World",
+                        required=False)
+
+    parser.add_argument("-o", "--outputfile",
+                        help="Relative path to the file where greeting \
+                                  should be stored. \n \
+                                  Defaults to 'output/output.txt'.",
+                        default="output/output.txt",
+                        required=False)
+
+    parser.add_argument("-s", "--sleeptimer",
+                        help="Waiting period (in seconds) taken between \
+                                  writing of each character of greeting. \
+                                  Defaults to '1.0' (seconds).",
+                        default=1.0,
+                        type=float,
+                        required=False)
+    parsed_args = parser.parse_args(args)
+
+    hello(parsed_args.name, parsed_args.outputfile, parsed_args.sleeptimer)
+

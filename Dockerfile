@@ -20,13 +20,17 @@
 
 FROM python:2.7-alpine
 
+# Prepare your environment (software, packages, dependencies, etc.)
+# NOTE: Nothing to prepare for helloworld example as baseimage already
+# provides Python.
+
+# Add your code.
 ADD . /code
 WORKDIR /code
+#RUN pip install -e .
 
-RUN pip install -e .
-
-CMD [ "python", "reana_demo_helloworld/helloworld.py", \
+# Define an example on how to run your code.
+CMD [ "python", "helloworld.py", \
       "--name", "J. Doe", \
       "--outputfile", "output/output.txt", \
       "--sleeptimer", "3" ]
-

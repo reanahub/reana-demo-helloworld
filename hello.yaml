@@ -26,15 +26,12 @@ stages:
       parameters:
         name: {stages: init, output: name, unwrap: True}
         delay: {stages: init, output: delay, unwrap: True}
-        outputfile: '{workdir}/greetings.txt'
       step:
         process:
           process_type: 'string-interpolated-cmd'
-          cmd: 'python reana_demo_helloworld/helloworld.py --name "{name}" --outputfile "{outputfile}" --sleeptimer {delay}'
+          cmd: 'python helloworld.py --name "{name}" --sleeptimer {delay}'
         publisher:
           publisher_type: 'frompar-pub'
-          outputmap:
-            output: outputfile
         environment:
           environment_type: 'docker-encapsulated'
-          image: 'reanahub/reana-demo-helloworld'
+          image: 'hjhsalo/dev'
