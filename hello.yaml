@@ -32,6 +32,8 @@ stages:
           cmd: 'python helloworld.py --name "{name}" --sleeptimer {delay}'
         publisher:
           publisher_type: 'frompar-pub'
+          outputmap:
+            output: '{workdir}/output/output.txt'
         environment:
           environment_type: 'docker-encapsulated'
-          image: 'hjhsalo/dev'
+          image: 'reanahub/reana-demo-helloworld'
