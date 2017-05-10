@@ -1,0 +1,20 @@
+stages:
+  - name: helloworld
+    dependencies: [init]
+    scheduler:
+      scheduler_type: 'singlestep-stage'
+      parameters:
+        name: {stages: init, output: name, unwrap: True}
+        delay: {stages: init, output: delay, unwrap: True}
+        outputfile: '{workdir}/greetings.txt'
+      step:
+        process:
+          process_type: 'string-interpolated-cmd'
+          cmd: 'python helloworld.py --name "{name}" --sleeptime {delay} --outputfile "{outputfile}"'
+        publisher:
+          publisher_type: 'frompar-pub'
+          outputmap:
+            outputfile: outputfile
+        environment:
+          environment_type: 'docker-encapsulated'
+          image: 'reanahub/reana-demo-helloworld'

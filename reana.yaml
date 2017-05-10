@@ -2,4 +2,4 @@ workflow: yadage
 yadage_file: hello.yaml
 yadage_toplevel: github:reanahub/reana-demo-helloworld
 yadage_nparallel: 10
-yadage_preset_parameters: {"name": "J.Doe", "delay": "2"}
+yadage_preset_parameters: {"name": "John Doe", "delay": "2"}
