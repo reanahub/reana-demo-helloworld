@@ -1,0 +1,26 @@
+notifications:
+  email: false
+
+sudo: true
+
+language: python
+
+cache:
+  - pip
+
+python:
+  - 2.7
+
+services:
+  - docker
+
+before_install:
+  - travis_retry pip install yadage
+
+install:
+  - docker build -t helloworld .
+
+script:
+  - yadage-validate helloworld.yaml | grep -q 'workflow validates'
+  - docker run -v `pwd`:/code -i -t --rm helloworld python helloworld.py --name Jim --sleeptime 1
+  - grep -q 'Hello Jim!' output/greetings.txt
