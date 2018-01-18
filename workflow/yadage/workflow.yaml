@@ -4,13 +4,14 @@ stages:
     scheduler:
       scheduler_type: 'singlestep-stage'
       parameters:
-        name: {stages: init, output: name, unwrap: True}
-        delay: {stages: init, output: delay, unwrap: True}
+        sleeptime: {stages: init, output: sleeptime, unwrap: True}
+        inputfile: {stages: init, output: inputfile, unwrap: true}
+        helloworld: {stages: init, output: helloworld, unwrap: true}
         outputfile: '{workdir}/greetings.txt'
       step:
         process:
           process_type: 'string-interpolated-cmd'
-          cmd: 'python helloworld.py --name "{name}" --sleeptime {delay} --outputfile "{outputfile}"'
+          cmd: 'python "{helloworld}" --sleeptime {sleeptime} --inputfile "{inputfile}" --outputfile "{outputfile}"'
         publisher:
           publisher_type: 'frompar-pub'
           outputmap:
