@@ -17,10 +17,8 @@ services:
 before_install:
   - travis_retry pip install yadage
 
-install:
-  - docker build -t helloworld .
-
 script:
-  - yadage-validate helloworld.yaml | grep -q 'workflow validates'
-  - docker run -v `pwd`:/code -i -t --rm helloworld python helloworld.py --name Jim --sleeptime 1
-  - grep -q 'Hello Jim!' output/greetings.txt
+  - yadage-validate workflow/yadage/workflow.yaml | grep -q 'workflow validates'
+  - rm -rf outputs && mkdir outputs
+  - docker run -i -t  --rm -v `pwd`/code:/code -v `pwd`/inputs:/inputs -v `pwd`/outputs:/outputs python:2.7 python /code/helloworld.py --sleeptime 0
+  - grep -q 'Hello John Doe!' outputs/greetings.txt

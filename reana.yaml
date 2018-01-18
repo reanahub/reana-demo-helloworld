@@ -1,5 +1,26 @@
-workflow: yadage
-yadage_file: helloworld.yaml
-yadage_toplevel: github:reanahub/reana-demo-helloworld
-yadage_nparallel: 10
-yadage_preset_parameters: {"name": "John Doe", "delay": "2"}
+version: 0.1.0
+metadata:
+  - authors:
+    - Harri Hirvonsalo <hjhsalo@gmail.com>
+    - Diego Rodriguez <diego.rodriguez@cern.ch>
+    - Tibor Simko <tibor.simko@cern.ch>
+  - title: Hello world - A simple reusable analysis example
+  - date: 18 January 2017
+  - repository: https://github.com/reanahub/reana-demo-helloworld/
+code:
+  - files:
+    - code/helloworld.py
+inputs:
+  - files:
+    - inputs/names.txt
+  - parameters:
+    - sleeptime: 2
+outputs:
+  - files:
+    - outputs/greetings.txt
+environments:
+  - type: docker
+    image: python:2.7
+workflow:
+  - type: yadage
+    file: workflow/yadage/workflow.yaml

@@ -15,108 +15,132 @@ About
 =====
 
 This repository provides a simple "hello world" application example for `REANA
-<http://reanahub.io/>`_ reusable research data analysis plaftorm.
+<http://reanahub.io/>`_ reusable research data analysis plaftorm. The example
+generates greetings for persons specified in an input file.
 
-Code
-====
+Making a research data analysis reproducible means to provide "runnable recipes"
+addressing (1) where the input datasets are, (2) what software was used to
+analyse the data, (3) which computing environment was used to run the software,
+and (4) which workflow steps were taken to run the analysis.
 
-A simple "hello world" Python code for illustration:
+1. Input dataset
+================
 
-- `helloworld.py <helloworld.py>`_
-
-The program takes several optional arguments such as the name of the person to
-greet and an optional sleeptime period and produces an output file with the
-greeting:
+The input file is a text file containing person names:
 
 .. code-block:: console
 
-   $ python helloworld.py --name Jane --sleeptime 0
-   $ cat output/greetings.txt
-   Hello Jane!
+   $ cat inputs/names.txt
+   John Doe
+   Jane Doe
 
-Containerisation
+2. Analysis code
 ================
 
-In order to be able to rerun the code even several years in the future, we need
-to "encapsulate the current environment" for example to freeze the Python
-version the code is using. We shall achieve this by preparing a `Docker
-<https://www.docker.com/>`_ container image for the program:
+A simple "hello world" Python code for illustration:
 
-- `Dockerfile <Dockerfile>`_
+- `helloworld.py <code/helloworld.py>`_
+
+The program takes an input file with the names of the persons to greet and an
+optional sleeptime period and produces an output file with the greetings:
+
+.. code-block:: console
+
+   $ python code/helloworld.py \
+       --inputfile inputs/names.txt
+       --outputfile outputs/greetings.txt
+       --sleeptime 0
+   $ cat outputs/greetings.txt
+   Hello John Doe!
+   Hello Jane Doe!
+
+3. Compute environment
+======================
+
+In order to be able to rerun the code even several years in the future, we need
+to "encapsulate the current environment", for example to freeze the Python
+version the code is using. We shall achieve this by preparing a `Docker
+<https://www.docker.com/>`_ container image for the program.
 
 For example:
 
 .. code-block:: console
 
-    $ cat Dockerfile
-    FROM python:2.7-alpine
-    ADD . /code
-    WORKDIR /code
-    CMD ["python", "helloworld.py", \
-         "--name", "John Doe", \
-         "--outputfile", "output/greetings.txt", \
-         "--sleeptime", "1"]
+    $ cat environment/Dockerfile
+    FROM python:2.7
 
-We build the container image:
+Since we don't need any additional Python packages for this simple example to
+work, we can directly rely on ``python`` image from Docker Hub. The trailing
+``:2.7`` makes sue we are using Python 2.7.
 
-.. code-block:: console
-
-    $ docker build -t helloworld .
-
-and test whether it works locally:
+Let us test whether everything works well locally in our containerised
+environment. Note how we mount our local directories ``inputs``, ``code`` and
+``outputs`` into the containerised environment:
 
 .. code-block:: console
 
-    $ docker run -v `pwd`:/code -i -t --rm helloworld python helloworld.py --name Jim --sleeptime 1
-    $ tail -1 output/greetings.txt
-    Hello Jim!
+    $ rm -rf outputs && mkdir outputs
+    $ docker run -i -t  --rm \
+                -v `pwd`/code:/code \
+                -v `pwd`/inputs:/inputs \
+                -v `pwd`/outputs:/outputs \
+                python:2.7 \
+             python /code/helloworld.py --sleeptime 0
+    $ tail -1 outputs/greetings.txt
+    Hello Jane Doe!
 
-and publish it on the Docker Hub:
-
-.. code-block:: console
-
-    $ docker push helloworld
-
-Workflow
-========
+4. Analysis workflow
+====================
 
 The hello world example is simple enough in that it does not require any complex
 workflow steps to run. It consists of running a single command only.
 Nevertheless, we shall demonstrate on how one could use the `Yadage
 <https://github.com/diana-hep/yadage>`_ workflow engine to represent the hello
 world application and its input and output arguments in a structured YAML
-manner:
+manner.
 
-- `helloworld.yaml <helloworld.yaml>`_
+- `workflow.yaml <workflow/yadage/workflow.yaml>`_
 
-For example:
+**FIXME**
 
-.. code-block:: console
+REANA file
+==========
 
-   $ cat helloworld.yaml
-   stages:
-     - name: helloworld
-       dependencies: [init]
-       scheduler:
-         scheduler_type: 'singlestep-stage'
-         parameters:
-           name: {stages: init, output: name, unwrap: True}
-           delay: {stages: init, output: delay, unwrap: True}
-           outputfile: '{workdir}/greetings.txt'
-         step:
-           process:
-             process_type: 'string-interpolated-cmd'
-             cmd: 'python helloworld.py --name "{name}" --sleeptime {delay} --outputfile "{outputfile}"'
-           publisher:
-             publisher_type: 'frompar-pub'
-             outputmap:
-               outputfile: outputfile
-           environment:
-             environment_type: 'docker-encapsulated'
-             image: 'reanahub/reana-demo-helloworld'
+Putting all together, we can describe our example hello world application, its
+runtime environment, the inputs, the code, the workflow and its outputs by means
+of the following REANA file:
 
-This provides a fully described "hello world" application that can be run on the
-REANA cloud.
+.. code-block:: yaml
+
+    version: 0.1.0
+    metadata:
+      - authors:
+        - Harri Hirvonsalo <hjhsalo@gmail.com>
+        - Diego Rodriguez <diego.rodriguez@cern.ch>
+        - Tibor Simko <tibor.simko@cern.ch>
+      - title: Hello world - A simple reusable analysis example
+      - date: 18 January 2017
+      - repository: https://github.com/reanahub/reana-demo-helloworld/
+    code:
+      - files:
+        - code/helloworld.py
+    inputs:
+      - files:
+        - inputs/names.txt
+      - parameters:
+        - sleeptime: 2
+    outputs:
+      - files:
+        - outputs/greetings.txt
+    environments:
+      - type: docker
+        image: python:2.7
+    workflow:
+      - type: yadage
+        file: workflow/yadage/workflow.yaml
+
+This completes the full description of our simple "hello world" application that
+can be run on the REANA cloud.
 
 Run the example on REANA cloud
 ==============================
@@ -124,16 +148,4 @@ Run the example on REANA cloud
 We can now install the REANA client and submit the hello world example to run on
 some particular REANA cloud instance:
 
-.. code-block:: console
-
-   $ pip install reana-client
-   $ export REANA_SERVER_URL=https://reana.cern.ch
-   $ reana-client run helloworld.yaml
-   [INFO] Starting helloworld...
-   [...]
-   [INFO] Done. You can see the results in the `output/` directory.
-
-**FIXME** The ``reana-client`` package is a not-yet-released work-in-progress.
-Until it is available, you can use ``reana run helloworld`` on the REANA server
-side, following the `REANA getting started
-<http://reana.readthedocs.io/en/latest/gettingstarted.html>`_ documentation.
+**FIXME**
