@@ -71,11 +71,53 @@ For example:
 
 Since we don't need any additional Python packages for this simple example to
 work, we can directly rely on ``python`` image from Docker Hub. The trailing
-``:2.7`` makes sue we are using Python 2.7.
+``:2.7`` makes sure we are using Python 2.7.
+
+4. Analysis workflow
+====================
+
+The hello world example is simple enough in that it does not require any complex
+workflow steps to run. It consists of running a single command only.
+Nevertheless, we shall demonstrate on how one could use the `Yadage
+<https://github.com/diana-hep/yadage>`_ workflow engine to represent the hello
+world application and its input and output arguments in a structured YAML
+manner:
+
+- `workflow.yaml <workflow/yadage/workflow.yaml>`_
+
+.. code-block:: yaml
+
+    stages:
+      - name: helloworld
+        dependencies: [init]
+        scheduler:
+          scheduler_type: 'singlestep-stage'
+          parameters:
+            sleeptime: {stages: init, output: sleeptime, unwrap: True}
+            inputfile: {stages: init, output: inputfile, unwrap: true}
+            helloworld: {stages: init, output: helloworld, unwrap: true}
+            outputfile: '{workdir}/greetings.txt'
+          step:
+            process:
+              process_type: 'string-interpolated-cmd'
+              cmd: 'python "{helloworld}" --sleeptime {sleeptime} --inputfile "{inputfile}" --outputfile "{outputfile}"'
+            publisher:
+              publisher_type: 'frompar-pub'
+              outputmap:
+                outputfile: outputfile
+            environment:
+              environment_type: 'docker-encapsulated'
+              image: 'reanahub/reana-demo-helloworld'
+
+Please see the Yadage documentation for more details.
+
+Local testing with Docker
+=========================
 
 Let us test whether everything works well locally in our containerised
-environment. Note how we mount our local directories ``inputs``, ``code`` and
-``outputs`` into the containerised environment:
+environment. We shall use Docker locally. Note how we mount our local
+directories ``inputs``, ``code`` and ``outputs`` into the containerised
+environment:
 
 .. code-block:: console
 
@@ -89,19 +131,14 @@ environment. Note how we mount our local directories ``inputs``, ``code`` and
     $ tail -1 outputs/greetings.txt
     Hello Jane Doe!
 
-4. Analysis workflow
-====================
+Local testing with Yadage
+=========================
 
-The hello world example is simple enough in that it does not require any complex
-workflow steps to run. It consists of running a single command only.
-Nevertheless, we shall demonstrate on how one could use the `Yadage
-<https://github.com/diana-hep/yadage>`_ workflow engine to represent the hello
-world application and its input and output arguments in a structured YAML
-manner.
+Let us test whether the Yadage workflow engine execution works locally as well.
 
-- `workflow.yaml <workflow/yadage/workflow.yaml>`_
-
-Since yadage only accepts one input directory as parameter we are going to create a wrapper directory which will contain links to `inputs` and `outputs` directories:
+Since Yadage only accepts one input directory as parameter, we are going to
+create a wrapper directory which will contain links to ``inputs`` and ``code``
+directories:
 
 .. code-block:: console
 
@@ -109,7 +146,7 @@ Since yadage only accepts one input directory as parameter we are going to creat
    $ cd yadage-local-run
    $ cp -a ../code ../inputs yadage-inputs
 
-Once we have done this, we can run yadage providing this convenience directory as input.
+We can now run Yadage locally as follows:
 
 .. code-block:: console
 
@@ -129,7 +166,10 @@ Once we have done this, we can run yadage providing this convenience directory a
    2018-01-26 10:48:31,145 - adage.controllerutils - INFO - no nodes can be run anymore and no rules are applicable
    2018-01-26 10:48:31,145 - adage - INFO - workflow completed successfully.
 
-We can now check if the output corresponds to the expected value. Since `yadage` can not be configured yet to write output to a specific directory, we should look for the directory with the name we have given to the workflow inside analysis root, `helloworld` in this case:
+We can now check if the output corresponds to the expected value. Since Yadage
+can not be configured yet to write output to a specific directory, we should
+look for the directory with the name we have given to the workflow inside
+analysis root ``helloworld`` in this case:
 
 .. code-block:: console
 
@@ -137,50 +177,59 @@ We can now check if the output corresponds to the expected value. Since `yadage`
    Hello John Doe!
    Hello Jane Doe!
 
-REANA file
-==========
+Create REANA file
+=================
 
-Putting all together, we can describe our example hello world application, its
-runtime environment, the inputs, the code, the workflow and its outputs by means
-of the following REANA file:
+Putting all together, we can now describe our example hello world application,
+its runtime environment, the inputs, the code, the workflow and its outputs by
+means of the following REANA specification file:
 
 .. code-block:: yaml
 
     version: 0.1.0
     metadata:
-      - authors:
-        - Harri Hirvonsalo <hjhsalo@gmail.com>
-        - Diego Rodriguez <diego.rodriguez@cern.ch>
-        - Tibor Simko <tibor.simko@cern.ch>
-      - title: Hello world - A simple reusable analysis example
-      - date: 18 January 2017
-      - repository: https://github.com/reanahub/reana-demo-helloworld/
+      authors:
+      - Harri Hirvonsalo <hjhsalo@gmail.com>
+      - Diego Rodriguez <diego.rodriguez@cern.ch>
+      - Tibor Simko <tibor.simko@cern.ch>
+      title: Hello world - A simple reusable analysis example
+      date: 18 January 2017
+      repository: https://github.com/reanahub/reana-demo-helloworld/
     code:
-      - files:
-        - code/helloworld.py
+      files:
+      - code/helloworld.py
     inputs:
-      - files:
+      files:
         - inputs/names.txt
-      - parameters:
-        - sleeptime: 2
+      parameters:
+        sleeptime: 2
+        inputfile: inputs/names.txt
+        helloworld: code/helloworld.py
     outputs:
-      - files:
-        - outputs/greetings.txt
+      files:
+      - outputs/greetings.txt
     environments:
       - type: docker
         image: python:2.7
     workflow:
-      - type: yadage
-        file: workflow/yadage/workflow.yaml
+      type: yadage
+      file: workflow/yadage/workflow.yaml
 
-This completes the full description of our simple "hello world" application that
-can be run on the REANA cloud.
+This fully describes our "hello world" application in a way that can be run on
+the REANA cloud.
 
 Run the example on REANA cloud
 ==============================
 
 We can now install the REANA client and submit the hello world example to run on
-some particular REANA cloud instance. First we will connect to the REANA cloud instance where we will run this example:
+some particular REANA cloud instance. We start by installing the client:
+
+.. code-block:: console
+
+   $ mkvirtualenv reana-client -p /usr/bin/python2.7
+   $ pip install reana-client
+
+and connect to the REANA cloud instance where we will run this example:
 
 .. code-block:: console
 
@@ -244,7 +293,7 @@ Start workflow execution and enquire about its running status:
    -----------|------------------------------------|------------------------------------|------------|-------
    lucid_kirch|57c917c8-d979-481e-ae4c-8d8b9ffb2d10|00000000-0000-0000-0000-000000000000|default     |running
 
-Once the status of the workflow is `finished` we can retrieve its output:
+After the workflow execution successfully finished, we can retrieve its output:
 
 .. code-block:: console
 
@@ -270,3 +319,5 @@ Once the status of the workflow is `finished` we can retrieve its output:
    $ cat outputs/helloworld/greetings.txt
    Hello John Doe!
    Hello Jane Doe!
+
+Thank you for using `REANA <http://reanahub.io/>`_ reusable analysis platform.
