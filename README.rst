@@ -66,12 +66,12 @@ For example:
 
 .. code-block:: console
 
-    $ cat environment/Dockerfile
+    $ cat environments/python/Dockerfile
     FROM python:2.7
 
 Since we don't need any additional Python packages for this simple example to
-work, we can directly rely on ``python`` image from Docker Hub. The trailing
-``:2.7`` makes sure we are using Python 2.7.
+work, we can directly rely on the ``python`` image from the Docker Hub. The
+trailing ``:2.7`` makes sure we are using Python 2.7.
 
 4. Analysis workflow
 ====================
