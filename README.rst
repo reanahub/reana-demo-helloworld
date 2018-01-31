@@ -107,7 +107,8 @@ manner:
                 outputfile: outputfile
             environment:
               environment_type: 'docker-encapsulated'
-              image: 'reanahub/reana-demo-helloworld'
+              image: 'python'
+              imagetag: '2.7'
 
 Please see the Yadage documentation for more details.
 
@@ -136,9 +137,9 @@ Local testing with Yadage
 
 Let us test whether the Yadage workflow engine execution works locally as well.
 
-Since Yadage only accepts one input directory as parameter, we are going to
-create a wrapper directory which will contain links to ``inputs`` and ``code``
-directories:
+Since Yadage accepts only one input directory as parameter, we are going to
+create a wrapper directory called ``yadage-inputs`` which will contain both
+``inputs`` and ``code`` directory content:
 
 .. code-block:: console
 
@@ -166,10 +167,10 @@ We can now run Yadage locally as follows:
    2018-01-26 10:48:31,145 - adage.controllerutils - INFO - no nodes can be run anymore and no rules are applicable
    2018-01-26 10:48:31,145 - adage - INFO - workflow completed successfully.
 
-We can now check if the output corresponds to the expected value. Since Yadage
-can not be configured yet to write output to a specific directory, we should
-look for the directory with the name we have given to the workflow inside
-analysis root ``helloworld`` in this case:
+Let us check if the output corresponds to the expected value. Since Yadage
+cannot be configured yet to write output to a specific directory, we should look
+for the directory with the name we have given to the workflow root step, which
+is ``helloworld`` in our case. Indeed:
 
 .. code-block:: console
 

@@ -18,4 +18,5 @@ stages:
             outputfile: outputfile
         environment:
           environment_type: 'docker-encapsulated'
-          image: 'reanahub/reana-demo-helloworld'
+          image: 'python'
+          imagetag: '2.7'
