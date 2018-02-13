@@ -78,39 +78,14 @@ trailing ``:2.7`` makes sure we are using Python 2.7.
 
 The hello world example is simple enough in that it does not require any complex
 workflow steps to run. It consists of running a single command only.
-Nevertheless, we shall demonstrate on how one could use the `Yadage
-<https://github.com/diana-hep/yadage>`_ workflow engine to represent the hello
-world application and its input and output arguments in a structured YAML
-manner:
+Nevertheless, it is represented in a structured YAML
+manner with `Yadage
+<https://github.com/diana-hep/yadage>`_ and `Common Workflow Language
+<http://www.commonwl.org/v1.0/>`_ specifications. The corresponding
+workflow descriptions can be found under ``workflow/yadage/workflow.yaml`` and
+``workflow/cwl/helloworld.cwl`` paths.
 
-- `workflow.yaml <workflow/yadage/workflow.yaml>`_
-
-.. code-block:: yaml
-
-    stages:
-      - name: helloworld
-        dependencies: [init]
-        scheduler:
-          scheduler_type: 'singlestep-stage'
-          parameters:
-            sleeptime: {stages: init, output: sleeptime, unwrap: True}
-            inputfile: {stages: init, output: inputfile, unwrap: true}
-            helloworld: {stages: init, output: helloworld, unwrap: true}
-            outputfile: '{workdir}/greetings.txt'
-          step:
-            process:
-              process_type: 'string-interpolated-cmd'
-              cmd: 'python "{helloworld}" --sleeptime {sleeptime} --inputfile "{inputfile}" --outputfile "{outputfile}"'
-            publisher:
-              publisher_type: 'frompar-pub'
-              outputmap:
-                outputfile: outputfile
-            environment:
-              environment_type: 'docker-encapsulated'
-              image: 'python'
-              imagetag: '2.7'
-
-Please see the Yadage documentation for more details.
+Please see the Yadage and CWL documentation for more details.
 
 Local testing with Docker
 =========================
@@ -135,7 +110,7 @@ environment:
 Local testing with Yadage
 =========================
 
-Let us test whether the Yadage workflow engine execution works locally as well.
+Let us test whether the Yadage workflow engine execution works locally.
 
 Since Yadage accepts only one input directory as parameter, we are going to
 create a wrapper directory called ``yadage-inputs`` which will contain both
@@ -177,6 +152,69 @@ is ``helloworld`` in our case. Indeed:
    $ cat helloworld/greetings.txt
    Hello John Doe!
    Hello Jane Doe!
+
+Local testing with CWL
+=========================
+
+Let us test whether the CWL workflow execution works locally as well.
+
+To prepare the execution, we can:
+
+- either place input files ``code/helloworld.py`` and ``inputs/names.txt`` into the directory with ``helloworld-job.yml``
+
+.. code-block:: console
+
+
+    $ cp code/helloworld.py inputs/names.txt workflow/cwl/
+
+
+- or place ``helloworld-job.yml`` to the root of the repository and edit it to correctly point to the input files:
+
+
+.. code-block:: console
+   :emphasize-lines: 7,10
+
+    $ cp workflow/cwl/helloworld-job.yml .
+    $ vim helloworld-job.yml
+
+    sleeptime: 1
+    helloworld:
+      class: File
+      location: code/helloworld.py
+    inputfile:
+      class: File
+      location: inputs/names.txt
+
+
+We can now run the corresponding commands locally as follows:
+
+.. code-block:: console
+
+   // use this command, if input files were copied
+   $ cwltool --quiet --outdir="outputs" workflow/cwl/helloworld.cwl workflow/cwl/helloworld-job.yml
+
+   // or use this command, if helloworld-job.yml was edited
+   $ cwltool --quiet --outdir="outputs" workflow/cwl/helloworld.cwl helloworld-job.yml
+
+    {
+        "result": {
+            "checksum": "sha1$280335176499b850a4c0f46f16f31ee4cbd36754",
+            "basename": "greetings.txt",
+            "location": "file:///path/to/reana-demo-helloworld/outputs/greetings.txt",
+            "path": "/path/to/reana-demo-helloworld/outputs/greetings.txt",
+            "class": "File",
+            "size": 32
+        }
+    }
+
+Checking the output
+
+.. code-block:: console
+
+   $ cat outputs/greetings.txt
+   Hello John Doe!
+   Hello Jane Doe!
+
 
 Create REANA file
 =================
@@ -320,5 +358,8 @@ After the workflow execution successfully finished, we can retrieve its output:
    $ cat outputs/helloworld/greetings.txt
    Hello John Doe!
    Hello Jane Doe!
+
+The following example uses Yadage workflow engine. If you would like to use CWL workflow engine,
+please just use ``-f reana-cwl.yaml`` with reana-client commands
 
 Thank you for using `REANA <http://reanahub.io/>`_ reusable analysis platform.
