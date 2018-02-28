@@ -158,43 +158,20 @@ Local testing with CWL
 
 Let us test whether the CWL workflow execution works locally as well.
 
-To prepare the execution, we can:
-
-- either place input files ``code/helloworld.py`` and ``inputs/names.txt`` into the directory with ``helloworld-job.yml``
-
-.. code-block:: console
-
-
-    $ cp code/helloworld.py inputs/names.txt workflow/cwl/
-
-
-- or place ``helloworld-job.yml`` to the root of the repository and edit it to correctly point to the input files:
-
+To prepare the execution, we are creating a working directory called ``cwl-local-run`` which will contain both
+``inputs`` and ``code`` directory content. Also, we need to copy the workflow input file:
 
 .. code-block:: console
-   :emphasize-lines: 7,10
 
-    $ cp workflow/cwl/helloworld-job.yml .
-    $ vim helloworld-job.yml
-
-    sleeptime: 1
-    helloworld:
-      class: File
-      location: code/helloworld.py
-    inputfile:
-      class: File
-      location: inputs/names.txt
-
+   $ mkdir cwl-local-run
+   $ cd cwl-local-run
+   $ cp ../code/* ../inputs/* ../workflow/cwl/helloworld-job.yml .
 
 We can now run the corresponding commands locally as follows:
 
 .. code-block:: console
 
-   // use this command, if input files were copied
-   $ cwltool --quiet --outdir="outputs" workflow/cwl/helloworld.cwl workflow/cwl/helloworld-job.yml
-
-   // or use this command, if helloworld-job.yml was edited
-   $ cwltool --quiet --outdir="outputs" workflow/cwl/helloworld.cwl helloworld-job.yml
+   $ cwltool --quiet --outdir="../outputs" ../workflow/cwl/helloworld.cwl helloworld-job.yml
 
     {
         "result": {
