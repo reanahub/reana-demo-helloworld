@@ -78,14 +78,13 @@ trailing ``:2.7`` makes sure we are using Python 2.7.
 
 The hello world example is simple enough in that it does not require any complex
 workflow steps to run. It consists of running a single command only.
-Nevertheless, it is represented in a structured YAML
-manner with `Yadage
+Nevertheless, it is represented in a structured YAML manner with `Yadage
 <https://github.com/diana-hep/yadage>`_ and `Common Workflow Language
-<http://www.commonwl.org/v1.0/>`_ specifications. The corresponding
-workflow descriptions can be found under ``workflow/yadage/workflow.yaml`` and
-``workflow/cwl/helloworld.cwl`` paths.
+<http://www.commonwl.org/v1.0/>`_ specifications. The corresponding workflow
+descriptions can be found here:
 
-Please see the Yadage and CWL documentation for more details.
+- `Yadage workflow definition <workflow/yadage/workflow.yaml>`_
+- `CWL workflow definition <workflow/cwl/helloworld.cwl>`_
 
 Local testing with Docker
 =========================
