@@ -244,73 +244,81 @@ some particular REANA cloud instance. We start by installing the client:
    $ mkvirtualenv reana-client -p /usr/bin/python2.7
    $ pip install reana-client
 
-and connect to the REANA cloud instance where we will run this example:
+We should now connect the client to the remote REANA cloud where the analysis
+will run. We do this by setting the ``REANA_SERVER_URL`` environment variable
+and ``REANA_ACCESS_TOKEN`` with a valid access token:
 
 .. code-block:: console
 
-   $ export REANA_SERVER_URL=http://192.168.99.100:31201
+   $ export REANA_SERVER_URL=https://reana.cern.ch
+   $ export REANA_ACCESS_TOKEN=<ACCESS_TOKEN>
 
 If you run REANA cluster locally as well, then:
 
 .. code-block:: console
 
-   $ eval $(reana-cluster env)
+   $ eval $(reana-cluster env --all)
 
 Let us check the connection:
 
 .. code-block:: console
 
    $ reana-client ping
-   Server is running.
+   Connected to https://reana.cern.ch - Server is running.
 
 We can now initialise workflow and upload input data and code:
 
 .. code-block:: console
 
-   $ reana-client workflow create
+   $ reana-client create
    workflow.1
    $ export REANA_WORKON=workflow.1
-   $ reana-client workflow status
-   NAME       RUN_NUMBER   ID                                     USER                                   ORGANIZATION   STATUS
-   workflow   1            91797125-012c-498d-8a92-b4f7e3598513   00000000-0000-0000-0000-000000000000   default        created
-   $ export REANA_WORKON="57c917c8-d979-481e-ae4c-8d8b9ffb2d10"
-   $ reana-client code upload ./code/helloworld.py
-   /home/simko/private/project/reana/src/reana-demo-helloworld/code/helloworld.py was uploaded successfully.
-   $ reana-client code list
-   NAME            SIZE   LAST-MODIFIED
-   helloworld.py   2905   2018-04-20 13:20:01.471120+00:00
-   $ reana-client inputs upload ./inputs/names.txt
-   File /home/simko/private/project/reana/src/reana-demo-helloworld/inputs/names.txt was successfully uploaded.
-   $ reana-client inputs list
-   NAME        SIZE   LAST-MODIFIED
-   names.txt   18     2018-04-20 13:20:28.834120+00:00
+   $ reana-client status
+   NAME       RUN_NUMBER   CREATED               STATUS    PROGRESS
+   workflow   1            2018-08-06T13:37:27   created   -/- 
+   $ export REANA_WORKON="workflow.1"
+   $ reana-client upload ./code/helloworld.py
+   File code/helloworld.py was successfully uploaded.
+   $ reana-client list
+   NAME                 SIZE   LAST-MODIFIED                   
+   code/helloworld.py   2905   2018-08-06 13:58:21.134586+00:00
+   $ reana-client upload ./inputs/names.txt
+   File inputs/names.txt was successfully uploaded.
+   $ reana-client list
+   NAME                 SIZE   LAST-MODIFIED                   
+   inputs/names.txt     18     2018-08-06 13:59:59.312452+00:00
+   code/helloworld.py   2905   2018-08-06 13:58:21.134586+00:00
+
 
 Start workflow execution and enquire about its running status:
 
 .. code-block:: console
 
-   $ reana-client workflow start
+   $ reana-client start
    workflow.1 has been started.
-   $ reana-client workflow status
-   NAME       RUN_NUMBER   ID                                     USER                                   ORGANIZATION   STATUS
-   workflow   1            91797125-012c-498d-8a92-b4f7e3598513   00000000-0000-0000-0000-000000000000   default        running
+   $ reana-client status
+   NAME       RUN_NUMBER   CREATED               STATUS    PROGRESS
+   workflow   18           2018-08-06T13:37:27   running   0/1 
 
 After the workflow execution successfully finished, we can retrieve its output:
 
 .. code-block:: console
 
-   $ reana-client workflow status
-   NAME       RUN_NUMBER   ID                                     USER                                   ORGANIZATION   STATUS
-   workflow   1            91797125-012c-498d-8a92-b4f7e3598513   00000000-0000-0000-0000-000000000000   default        finished
-   $ reana-client outputs list
-   NAME                                    SIZE   LAST-MODIFIED
-   helloworld/greetings.txt                32     2018-04-20 13:22:38.460119+00:00
-   _yadage/yadage_snapshot_backend.json    590    2018-04-20 13:22:38.460119+00:00
-   _yadage/yadage_snapshot_workflow.json   9267   2018-04-20 13:22:38.460119+00:00
-   _yadage/yadage_template.json            1099   2018-04-20 13:22:38.460119+00:00
-   $ reana-client outputs download helloworld/greetings.txt
-   File helloworld/greetings.txt downloaded to ./outputs/
-   $ cat outputs/helloworld/greetings.txt
+   $ reana-client status
+   NAME       RUN_NUMBER   CREATED               STATUS     PROGRESS
+   workflow   18           2018-08-06T13:37:27   finished   1/1 
+   $ reana-client list
+   NAME                                    SIZE   LAST-MODIFIED                   
+   helloworld/greetings.txt                32     2018-08-06 14:01:42.769185+00:00
+   _yadage/yadage_snapshot_backend.json    576    2018-08-06 14:01:48.252115+00:00
+   _yadage/yadage_snapshot_workflow.json   9163   2018-08-06 14:01:48.252115+00:00
+   _yadage/yadage_template.json            1099   2018-08-06 14:00:32.375079+00:00
+   inputs/names.txt                        18     2018-08-06 13:59:59.312452+00:00
+   code/helloworld.py                      2905   2018-08-06 13:58:21.134586+00:00
+
+   $ reana-client download helloworld/greetings.txt
+   File helloworld/greetings.txt downloaded to /home/reana/reanahub/demos/reana-demo-helloworld.
+   $ cat helloworld/greetings.txt
    Hello John Doe!
    Hello Jane Doe!
 

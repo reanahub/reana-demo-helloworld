@@ -1,7 +1,7 @@
 sleeptime: 1
 helloworld:
   class: File
-  location: helloworld.py
+  location: code/helloworld.py
 inputfile:
   class: File
-  location: names.txt
+  location: inputs/names.txt
