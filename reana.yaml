@@ -1,28 +1,20 @@
-version: 0.2.0
-metadata:
-  authors:
-   - Harri Hirvonsalo <hjhsalo@gmail.com>
-   - Diego Rodriguez <diego.rodriguez@cern.ch>
-   - Tibor Simko <tibor.simko@cern.ch>
-  title: Hello world - A simple reusable analysis example
-  date: 18 January 2017
-  repository: https://github.com/reanahub/reana-demo-helloworld/
-code:
-  files:
-   - code/helloworld.py
+version: 0.3.0
 inputs:
   files:
+    - code/helloworld.py
     - inputs/names.txt
   parameters:
     sleeptime: 2
     inputfile: inputs/names.txt
     helloworld: code/helloworld.py
+    outputfile: outputs/greetings.txt
 outputs:
   files:
    - outputs/greetings.txt
-environments:
-  - type: docker
-    image: python:2.7
 workflow:
-  type: yadage
-  file: workflow/yadage/workflow.yaml
+  type: serial
+  specification:
+    steps:
+      - environment: 'python:2.7'
+        commands:
+          - python "${helloworld}" --sleeptime ${sleeptime} --inputfile "${inputfile}" --outputfile "${outputfile}"

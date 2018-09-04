@@ -1,6 +1,6 @@
-====================================
- REANA demo example - "hello world"
-====================================
+===============================
+ REANA example - "hello world"
+===============================
 
 .. image:: https://img.shields.io/travis/reanahub/reana-demo-helloworld.svg
    :target: https://travis-ci.org/reanahub/reana-demo-helloworld
@@ -15,27 +15,32 @@ About
 =====
 
 This repository provides a simple "hello world" application example for `REANA
-<http://reanahub.io/>`_ reusable research data analysis plaftorm. The example
+<http://www.reanahub.io/>`_ reusable research data analysis plaftorm. The example
 generates greetings for persons specified in an input file.
 
-Making a research data analysis reproducible means to provide "runnable recipes"
-addressing (1) where the input datasets are, (2) what software was used to
-analyse the data, (3) which computing environment was used to run the software,
-and (4) which workflow steps were taken to run the analysis.
+Analysis structure
+==================
+
+Making a research data analysis reproducible basically means to provide
+"runnable recipes" addressing (1) where is the input data, (2) what software was
+used to analyse the data, (3) which computing environments were used to run the
+software and (4) which computational workflow steps were taken to run the
+analysis. This will permit to instantiate the analysis on the computational
+cloud and run the analysis to obtain (5) output results.
 
 1. Input dataset
-================
+----------------
 
 The input file is a text file containing person names:
 
 .. code-block:: console
 
-   $ cat inputs/names.txt
-   John Doe
-   Jane Doe
+    $ cat inputs/names.txt
+    Jane Doe
+    Joe Bloggs
 
 2. Analysis code
-================
+----------------
 
 A simple "hello world" Python code for illustration:
 
@@ -46,21 +51,22 @@ optional sleeptime period and produces an output file with the greetings:
 
 .. code-block:: console
 
-   $ python code/helloworld.py \
-       --inputfile inputs/names.txt
-       --outputfile outputs/greetings.txt
-       --sleeptime 0
-   $ cat outputs/greetings.txt
-   Hello John Doe!
-   Hello Jane Doe!
+    $ python code/helloworld.py \
+        --inputfile inputs/names.txt
+        --outputfile outputs/greetings.txt
+        --sleeptime 0
+    $ cat outputs/greetings.txt
+    Hello Jane Doe!
+    Hello Joe Bloggs!
 
 3. Compute environment
-======================
+----------------------
 
-In order to be able to rerun the code even several years in the future, we need
-to "encapsulate the current environment", for example to freeze the Python
-version the code is using. We shall achieve this by preparing a `Docker
-<https://www.docker.com/>`_ container image for the program.
+In order to be able to rerun the analysis even several years in the future, we
+need to "encapsulate the current compute environment", for example to freeze the
+Jupyter notebook version and the notebook kernel that our analysis was using. We
+shall achieve this by preparing a `Docker <https://www.docker.com/>`_ container
+image for our analysis steps.
 
 For example:
 
@@ -76,23 +82,54 @@ trailing ``:2.7`` makes sure we are using Python 2.7.
 4. Analysis workflow
 ====================
 
-The hello world example is simple enough in that it does not require any complex
-workflow steps to run. It consists of running a single command only.
-Nevertheless, it is represented in a structured YAML manner with `Yadage
-<https://github.com/diana-hep/yadage>`_ and `Common Workflow Language
-<http://www.commonwl.org/v1.0/>`_ specifications. The corresponding workflow
-descriptions can be found here:
+This analysis is very simple because it consists basically of running only the
+Python executable which will produce a text file.
+
+The workflow can be represented as follows:
+
+.. code-block:: console
+
+                START
+                |
+                |
+                V
+    +-------------------------------+
+    |                               | <-- inputfile=inputs/names.txt
+    |    $ python helloworld.py ... | <-- sleeptime=2
+    +-------------------------------+
+                |
+                | otuputfile=outputs/greetings.txt
+                V
+                STOP
+
+
+Note that you can also use `CWL <http://www.commonwl.org/v1.0/>`_ or `Yadage
+<https://github.com/diana-hep/yadage>`_ workflow specifications:
 
 - `Yadage workflow definition <workflow/yadage/workflow.yaml>`_
 - `CWL workflow definition <workflow/cwl/helloworld.cwl>`_
 
-Local testing with Docker
-=========================
+5. Output results
+-----------------
 
-Let us test whether everything works well locally in our containerised
-environment. We shall use Docker locally. Note how we mount our local
-directories ``inputs``, ``code`` and ``outputs`` into the containerised
-environment:
+The example produces a file greeting all names included in the
+`names.txt <inputs/names.txt>`_ file.
+
+.. code-block:: text
+
+     Hello Jane Doe!
+     Hello Joe Bloggs!
+
+Local testing
+=============
+
+*Optional*
+
+If you would like to test the analysis locally (i.e. outside of the REANA
+platform), you can proceed as follows.
+
+
+Using pure Docker:
 
 .. code-block:: console
 
@@ -104,145 +141,80 @@ environment:
                 python:2.7 \
              python /code/helloworld.py --sleeptime 0
     $ tail -1 outputs/greetings.txt
+    Hello Joe Bloggs!
+
+In case you are using Yadage workflow specification:
+
+.. code-block:: console
+
+    $ mkdir -p yadage-local-run/yadage-inputs
+    $ cd yadage-local-run
+    $ cp -a ../code ../inputs yadage-inputs
+    $ yadage-run . ../workflow/yadage/workflow.yaml -p sleeptime=2
+            -p inputfile=inputs/names.txt
+            -p helloworld=code/helloworld.py
+            -d initdir=`pwd`/yadage-inputs
+    $ cat helloworld/greetings.txt
     Hello Jane Doe!
+    Hello Joe Bloggs!
 
-Local testing with Yadage
-=========================
-
-Let us test whether the Yadage workflow engine execution works locally.
-
-Since Yadage accepts only one input directory as parameter, we are going to
-create a wrapper directory called ``yadage-inputs`` which will contain both
-``inputs`` and ``code`` directory content:
+Using CWL workflow specification:
 
 .. code-block:: console
 
-   $ mkdir -p yadage-local-run/yadage-inputs
-   $ cd yadage-local-run
-   $ cp -a ../code ../inputs yadage-inputs
+    $ mkdir cwl-local-run
+    $ cd cwl-local-run
+    $ cp ../code/* ../inputs/* ../workflow/cwl/helloworld-job.yml .
+    $ cwltool --quiet --outdir="../outputs"
+            ../workflow/cwl/helloworld.cwl helloworld-job.yml
+    $ cat outputs/greetings.txt
+    Hello Jane Doe!
+    Hello Joe Bloggs!
 
-We can now run Yadage locally as follows:
+Running the example on REANA cloud
+==================================
 
-.. code-block:: console
+We are now ready to run this example and on the `REANA <http://www.reana.io/>`_
+cloud.
 
-   $ yadage-run . ../workflow/yadage/workflow.yaml -p sleeptime=2 -p inputfile=inputs/names.txt -p helloworld=code/helloworld.py -d initdir=`pwd`/yadage-inputs
-   2018-01-26 10:47:22,521 - yadage.steering_object - INFO - initializing workflow with {u'inputfile': '/Users/rodrigdi/reana/reana-demo-helloworld/yadage-local-run/yadage-inputs/inputs/names.txt', u'helloworld': '/Users/rodrigdi/reana/reana-demo-helloworld/yadage-local-run/yadage-inputs/code/helloworld.py', u'sleeptime': 2}
-   2018-01-26 10:47:22,521 - yadage.steering_api - INFO - running yadage workflow ../workflow/yadage/workflow.yaml on backend <yadage.backends.packtivitybackend.PacktivityBackend object at 0x109408ed0>
-   2018-01-26 10:47:22,522 - adage.pollingexec - INFO - preparing adage coroutine.
-   2018-01-26 10:47:22,522 - adage - INFO - starting state loop.
-   2018-01-26 10:47:22,756 - adage.node - INFO - node ready <YadageNode init SUCCESS lifetime: 0:00:00.187837  runtime: 0:00:00.021882 (id: 21169211508d8d3d10a3571e6b1b3c387c09a4b1) has result: True>
-   2018-01-26 10:47:22,807 - packtivity_logger_helloworld.step - INFO - prepare pull
-   2018-01-26 10:47:25,199 - packtivity_logger_helloworld.step - INFO - running job
-   2018-01-26 10:48:31,142 - adage.node - INFO - node ready <YadageNode helloworld SUCCESS lifetime: 0:01:08.409374  runtime: 0:01:08.385001 (id: 26cfa292f4e1fe9fc7f0dbef834e222ddcafb021) has result: True>
-   2018-01-26 10:48:31,144 - adage.controllerutils - INFO - no nodes can be run anymore and no rules are applicable
-   2018-01-26 10:48:31,144 - adage.pollingexec - INFO - exiting main polling coroutine
-   2018-01-26 10:48:31,144 - adage - INFO - adage state loop done.
-   2018-01-26 10:48:31,145 - adage - INFO - execution valid. (in terms of execution order)
-   2018-01-26 10:48:31,145 - adage.controllerutils - INFO - no nodes can be run anymore and no rules are applicable
-   2018-01-26 10:48:31,145 - adage - INFO - workflow completed successfully.
-
-Let us check if the output corresponds to the expected value. Since Yadage
-cannot be configured yet to write output to a specific directory, we should look
-for the directory with the name we have given to the workflow root step, which
-is ``helloworld`` in our case. Indeed:
-
-.. code-block:: console
-
-   $ cat helloworld/greetings.txt
-   Hello John Doe!
-   Hello Jane Doe!
-
-Local testing with CWL
-=========================
-
-Let us test whether the CWL workflow execution works locally as well.
-
-To prepare the execution, we are creating a working directory called ``cwl-local-run`` which will contain both
-``inputs`` and ``code`` directory content. Also, we need to copy the workflow input file:
-
-.. code-block:: console
-
-   $ mkdir cwl-local-run
-   $ cd cwl-local-run
-   $ cp ../code/* ../inputs/* ../workflow/cwl/helloworld-job.yml .
-
-We can now run the corresponding commands locally as follows:
-
-.. code-block:: console
-
-   $ cwltool --quiet --outdir="../outputs" ../workflow/cwl/helloworld.cwl helloworld-job.yml
-
-    {
-        "result": {
-            "checksum": "sha1$280335176499b850a4c0f46f16f31ee4cbd36754",
-            "basename": "greetings.txt",
-            "location": "file:///path/to/reana-demo-helloworld/outputs/greetings.txt",
-            "path": "/path/to/reana-demo-helloworld/outputs/greetings.txt",
-            "class": "File",
-            "size": 32
-        }
-    }
-
-Checking the output
-
-.. code-block:: console
-
-   $ cat outputs/greetings.txt
-   Hello John Doe!
-   Hello Jane Doe!
-
-
-Create REANA file
-=================
-
-Putting all together, we can now describe our example hello world application,
-its runtime environment, the inputs, the code, the workflow and its outputs by
-means of the following REANA specification file:
+First we need to create a `reana.yaml <reana.yaml>`_ file describing the
+structure of our analysis with its inputs, the code, the runtime environment,
+the computational workflow steps and the expected outputs:
 
 .. code-block:: yaml
 
-   version: 0.2.0
-   metadata:
-     authors:
-      - Harri Hirvonsalo <hjhsalo@gmail.com>
-      - Diego Rodriguez <diego.rodriguez@cern.ch>
-      - Tibor Simko <tibor.simko@cern.ch>
-     title: Hello world - A simple reusable analysis example
-     date: 18 January 2017
-     repository: https://github.com/reanahub/reana-demo-helloworld/
-   code:
-     files:
-      - code/helloworld.py
-   inputs:
-     files:
-       - inputs/names.txt
-     parameters:
-       sleeptime: 2
-       inputfile: inputs/names.txt
-       helloworld: code/helloworld.py
-   outputs:
-     files:
-      - outputs/greetings.txt
-   environments:
-     - type: docker
-       image: python:2.7
-   workflow:
-     type: yadage
-     file: workflow/yadage/workflow.yaml
+    version: 0.3.0
+    inputs:
+    files:
+        - code/helloworld.py
+        - inputs/names.txt
+    parameters:
+        sleeptime: 2
+        inputfile: inputs/names.txt
+        helloworld: code/helloworld.py
+        outputfile: outputs/greetings.txt
+    outputs:
+    files:
+    - outputs/greetings.txt
+    workflow:
+    type: serial
+    specification:
+        steps:
+        - environment: 'python:2.7'
+            commands:
+            - python "${helloworld}" --sleeptime ${sleeptime} --inputfile "${inputfile}" --outputfile "${outputfile}"
 
-This fully describes our "hello world" application in a way that can be run on
-the REANA cloud.
+In case you are using CWL or Yadage workflow specifications:
 
-Run the example on REANA cloud
-==============================
+- `reana.yaml using CWL <reana-cwl.yaml>`_
+- `reana.yaml using Yadage <reana-yadage.yaml>`_
 
-We can now install the REANA client and submit the hello world example to run on
-some particular REANA cloud instance. We start by installing the client:
+We proceed by installing the REANA command-line client:
 
 .. code-block:: console
 
-   $ mkvirtualenv reana-client -p /usr/bin/python2.7
-   $ pip install reana-client
+    $ mkvirtualenv reana-client
+    $ pip install reana-client
 
 We should now connect the client to the remote REANA cloud where the analysis
 will run. We do this by setting the ``REANA_SERVER_URL`` environment variable
@@ -250,81 +222,89 @@ and ``REANA_ACCESS_TOKEN`` with a valid access token:
 
 .. code-block:: console
 
-   $ export REANA_SERVER_URL=https://reana.cern.ch
-   $ export REANA_ACCESS_TOKEN=<ACCESS_TOKEN>
+    $ export REANA_SERVER_URL=https://reana.cern.ch/
+    $ export REANA_ACCESS_TOKEN=<ACCESS_TOKEN>
 
-If you run REANA cluster locally as well, then:
-
-.. code-block:: console
-
-   $ eval $(reana-cluster env --all)
-
-Let us check the connection:
+Note that if you `run REANA cluster locally
+<http://reana-cluster.readthedocs.io/en/latest/gettingstarted.html#deploy-reana-cluster-locally>`_
+on your laptop, you would do:
 
 .. code-block:: console
 
-   $ reana-client ping
-   Connected to https://reana.cern.ch - Server is running.
+    $ eval $(reana-cluster env --all)
 
-We can now initialise workflow and upload input data and code:
-
-.. code-block:: console
-
-   $ reana-client create
-   workflow.1
-   $ export REANA_WORKON=workflow.1
-   $ reana-client status
-   NAME       RUN_NUMBER   CREATED               STATUS    PROGRESS
-   workflow   1            2018-08-06T13:37:27   created   -/- 
-   $ export REANA_WORKON="workflow.1"
-   $ reana-client upload ./code/helloworld.py
-   File code/helloworld.py was successfully uploaded.
-   $ reana-client list
-   NAME                 SIZE   LAST-MODIFIED                   
-   code/helloworld.py   2905   2018-08-06 13:58:21.134586+00:00
-   $ reana-client upload ./inputs/names.txt
-   File inputs/names.txt was successfully uploaded.
-   $ reana-client list
-   NAME                 SIZE   LAST-MODIFIED                   
-   inputs/names.txt     18     2018-08-06 13:59:59.312452+00:00
-   code/helloworld.py   2905   2018-08-06 13:58:21.134586+00:00
-
-
-Start workflow execution and enquire about its running status:
+Let us test the client-to-server connection:
 
 .. code-block:: console
 
-   $ reana-client start
-   workflow.1 has been started.
-   $ reana-client status
-   NAME       RUN_NUMBER   CREATED               STATUS    PROGRESS
-   workflow   18           2018-08-06T13:37:27   running   0/1 
+    $ reana-client ping
+    Connected to https://reana.cern.ch - Server is running.
 
-After the workflow execution successfully finished, we can retrieve its output:
+We proceed to create a new workflow instance:
 
 .. code-block:: console
 
-   $ reana-client status
-   NAME       RUN_NUMBER   CREATED               STATUS     PROGRESS
-   workflow   18           2018-08-06T13:37:27   finished   1/1 
-   $ reana-client list
-   NAME                                    SIZE   LAST-MODIFIED                   
-   helloworld/greetings.txt                32     2018-08-06 14:01:42.769185+00:00
-   _yadage/yadage_snapshot_backend.json    576    2018-08-06 14:01:48.252115+00:00
-   _yadage/yadage_snapshot_workflow.json   9163   2018-08-06 14:01:48.252115+00:00
-   _yadage/yadage_template.json            1099   2018-08-06 14:00:32.375079+00:00
-   inputs/names.txt                        18     2018-08-06 13:59:59.312452+00:00
-   code/helloworld.py                      2905   2018-08-06 13:58:21.134586+00:00
+    $ reana-client create
+    workflow.1
+    $ export REANA_WORKON=workflow.1
 
-   $ reana-client download helloworld/greetings.txt
-   File helloworld/greetings.txt downloaded to /home/reana/reanahub/demos/reana-demo-helloworld.
-   $ cat helloworld/greetings.txt
-   Hello John Doe!
-   Hello Jane Doe!
+We can now seed the analysis workspace with our input data file and our
+Python program:
 
-Note that this example demonstrated the use of the Yadage workflow engine. If
-you would like to use the CWL workflow engine, please just use ``-f
-reana-cwl.yaml`` option with the ``reana-client`` commands.
+.. code-block:: console
 
-Thank you for using the `REANA <http://reanahub.io/>`_ reusable analysis
-platform.
+    $ reana-client upload ./inputs ./code
+    File inputs/names.txt was successfully uploaded.
+    File code/helloworld.py was successfully uploaded.
+    $ reana-client list
+    NAME                 SIZE   LAST-MODIFIED
+    inputs/names.txt     18     2018-08-06 13:59:59.312452+00:00
+    code/helloworld.py   2905   2018-08-06 13:58:21.134586+00:00
+
+
+We can now start the workflow execution:
+
+.. code-block:: console
+
+    $ reana-client start
+    workflow.1 has been started.
+
+After several minutes the workflow should be successfully finished. Let us query
+its status:
+
+.. code-block:: console
+
+    $ reana-client status
+    NAME       RUN_NUMBER   CREATED               STATUS    PROGRESS
+    workflow   1            2018-08-06T13:37:27   finished  1/1
+
+We can list the output files:
+
+.. code-block:: console
+
+    $ reana-client list
+    NAME                    SIZE   LAST-MODIFIED
+    outputs/greetings.txt   32     2018-08-06 14:01:02.712452+00:00
+    code/helloworld.py      2905   2018-08-06 13:58:21.134586+00:00
+    inputs/names.txt        18     2018-08-06 13:59:59.312452+00:00
+
+We finish by downloading the generated file:
+
+.. code-block:: console
+
+    $ reana-client download outputs/greetings.txt
+    File outputs/greetings.txt downloaded to /home/reana/reanahub/reana-demo-helloworld.
+    $ cat outputs/greetings.txt
+    Hello Jane Doe!
+    Hello Joe Bloggs!
+
+Contributors
+============
+
+The list of contributors in alphabetical order:
+
+- `Anton Khodak <https://orcid.org/0000-0003-3263-4553>`_ <anton.khodak@ukr.net>
+- `Diego Rodriguez <https://orcid.org/0000-0003-0649-2002>`_ <diego.rodriguez@cern.ch>
+- `Dinos Kousidis <https://orcid.org/0000-0002-4914-4289>`_ <dinos.kousidis@cern.ch>
+- `Harri Hirvonsalo <https://orcid.org/0000-0002-5503-510X>`_ <harri.hirvonsalo@cern.ch>
+- `Tibor Simko <https://orcid.org/0000-0001-7202-5803>`_ <tibor.simko@cern.ch>

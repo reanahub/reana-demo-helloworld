@@ -4,10 +4,12 @@ inputs:
     - code/helloworld.py
     - inputs/names.txt
   parameters:
-    input: workflow/cwl/helloworld-job.yml
+    sleeptime: 2
+    inputfile: inputs/names.txt
+    helloworld: code/helloworld.py
 outputs:
   files:
    - outputs/greetings.txt
 workflow:
-  type: cwl
-  file: workflow/cwl/helloworld.cwl
+  type: yadage
+  file: workflow/yadage/workflow.yaml
