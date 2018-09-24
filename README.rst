@@ -202,7 +202,11 @@ the computational workflow steps and the expected outputs:
         steps:
         - environment: 'python:2.7'
             commands:
-            - python "${helloworld}" --sleeptime ${sleeptime} --inputfile "${inputfile}" --outputfile "${outputfile}"
+            - >
+              python "${helloworld}"
+              --sleeptime ${sleeptime}
+              --inputfile "${inputfile}"
+              --outputfile "${outputfile}"
 
 In case you are using CWL or Yadage workflow specifications:
 
