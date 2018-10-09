@@ -2,15 +2,12 @@ version: 0.3.0
 inputs:
   files:
     - code/helloworld.py
-    - inputs/names.txt
+    - data/names.txt
   parameters:
     sleeptime: 2
-    inputfile: inputs/names.txt
+    inputfile: data/names.txt
     helloworld: code/helloworld.py
-    outputfile: outputs/greetings.txt
-outputs:
-  files:
-   - outputs/greetings.txt
+    outputfile: results/greetings.txt
 workflow:
   type: serial
   specification:
@@ -18,3 +15,6 @@ workflow:
       - environment: 'python:2.7'
         commands:
           - python "${helloworld}" --sleeptime ${sleeptime} --inputfile "${inputfile}" --outputfile "${outputfile}"
+outputs:
+  files:
+   - results/greetings.txt

@@ -2,14 +2,14 @@ version: 0.3.0
 inputs:
   files:
     - code/helloworld.py
-    - inputs/names.txt
+    - data/names.txt
   parameters:
     sleeptime: 2
-    inputfile: inputs/names.txt
+    inputfile: data/names.txt
     helloworld: code/helloworld.py
-outputs:
-  files:
-   - outputs/greetings.txt
 workflow:
   type: yadage
   file: workflow/yadage/workflow.yaml
+outputs:
+  files:
+  - results/greetings.txt

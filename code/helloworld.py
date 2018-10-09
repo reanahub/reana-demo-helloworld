@@ -11,7 +11,7 @@ import sys
 import time
 
 
-def hello(inputfile="inputs/names.txt", outputfile="outputs/greetings.txt", sleeptime=1.0):
+def hello(inputfile="data/names.txt", outputfile="results/greetings.txt", sleeptime=1.0):
     """Say 'Hello' to given name and store the greeting to a file.
 
     Writes the greeting character by character. An optional waiting period
@@ -60,15 +60,15 @@ if __name__ == '__main__':
     parser.add_argument("-i", "--inputfile",
                         help="Relative path to the file containing \
                                   the names of the persons to greet. \n \
-                                  [default=inputs/names.txt]",
-                        default="inputs/names.txt",
+                                  [default=data/names.txt]",
+                        default="data/names.txt",
                         required=False)
 
     parser.add_argument("-o", "--outputfile",
                         help="Relative path to the file where greeting \
                                   should be stored. \n \
-                                  [default=outputs/greetings.txt]",
-                        default="outputs/greetings.txt",
+                                  [default=results/greetings.txt]",
+                        default="results/greetings.txt",
                         required=False)
 
     parser.add_argument("-s", "--sleeptime",

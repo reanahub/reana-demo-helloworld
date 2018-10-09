@@ -19,6 +19,6 @@ before_install:
 
 script:
   - yadage-validate workflow/yadage/workflow.yaml | grep -q 'workflow validates'
-  - rm -rf outputs && mkdir outputs
-  - docker run -i -t  --rm -v `pwd`/code:/code -v `pwd`/inputs:/inputs -v `pwd`/outputs:/outputs python:2.7 python /code/helloworld.py --sleeptime 0
-  - grep -q 'Hello Joe Bloggs!' outputs/greetings.txt
+  - rm -rf results && mkdir results
+  - docker run -i -t  --rm -v `pwd`/code:/code -v `pwd`/data:/data -v `pwd`/results:/results python:2.7 python /code/helloworld.py --sleeptime 0
+  - grep -q 'Hello Joe Bloggs!' results/greetings.txt

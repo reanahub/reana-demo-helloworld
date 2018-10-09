@@ -4,4 +4,4 @@ helloworld:
   location: code/helloworld.py
 inputfile:
   class: File
-  location: inputs/names.txt
+  location: data/names.txt
