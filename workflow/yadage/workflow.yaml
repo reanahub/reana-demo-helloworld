@@ -4,7 +4,7 @@
 #   $ mkdir -p yadage-local-run/yadage-inputs
 #   $ cd yadage-local-run
 #   $ cp -a ../code ../data yadage-inputs
-#   $ yadage-run . ../workflow/yadage/workflow.yaml -p sleeptime=2 \
+#   $ yadage-run . ../workflow/yadage/workflow.yaml -p sleeptime=0 \
 #       -p inputfile=data/names.txt \
 #       -p helloworld=code/helloworld.py \
 #       -d initdir=`pwd`/yadage-inputs

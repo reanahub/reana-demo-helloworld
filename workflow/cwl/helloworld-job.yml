@@ -1,4 +1,4 @@
-sleeptime: 1
+sleeptime: 0
 helloworld:
   class: File
   location: code/helloworld.py

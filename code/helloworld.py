@@ -11,7 +11,7 @@ import sys
 import time
 
 
-def hello(inputfile="data/names.txt", outputfile="results/greetings.txt", sleeptime=1.0):
+def hello(inputfile="data/names.txt", outputfile="results/greetings.txt", sleeptime=0.0):
     """Say 'Hello' to given name and store the greeting to a file.
 
     Writes the greeting character by character. An optional waiting period

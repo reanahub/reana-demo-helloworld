@@ -95,7 +95,7 @@ The workflow can be represented as follows:
                 V
     +-------------------------------+
     |                               | <-- inputfile=data/names.txt
-    |    $ python helloworld.py ... | <-- sleeptime=2
+    |    $ python helloworld.py ... | <-- sleeptime=0
     +-------------------------------+
                 |
                 | otuputfile=results/greetings.txt
@@ -138,17 +138,20 @@ the computational workflow steps and the expected outputs:
         - code/helloworld.py
         - data/names.txt
       parameters:
-        sleeptime: 2
-        inputfile: data/names.txt
         helloworld: code/helloworld.py
+        inputfile: data/names.txt
         outputfile: results/greetings.txt
+        sleeptime: 0
     workflow:
       type: serial
       specification:
         steps:
           - environment: 'python:2.7'
             commands:
-              - python "${helloworld}" --sleeptime ${sleeptime} --inputfile "${inputfile}" --outputfile "${outputfile}"
+              - python "${helloworld}"
+                  --inputfile "${inputfile}"
+                  --outputfile "${outputfile}"
+                  --sleeptime ${sleeptime}
     outputs:
       files:
        - results/greetings.txt

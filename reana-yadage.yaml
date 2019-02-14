@@ -4,7 +4,7 @@ inputs:
     - code/helloworld.py
     - data/names.txt
   parameters:
-    sleeptime: 2
+    sleeptime: 0
     inputfile: data/names.txt
     helloworld: code/helloworld.py
 workflow:
