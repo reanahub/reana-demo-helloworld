@@ -12,7 +12,7 @@ workflow:
   type: serial
   specification:
     steps:
-      - environment: 'python:2.7'
+      - environment: 'python:2.7-slim'
         commands:
           - python "${helloworld}"
               --inputfile "${inputfile}"

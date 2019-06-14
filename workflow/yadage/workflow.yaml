@@ -33,4 +33,4 @@ stages:
         environment:
           environment_type: 'docker-encapsulated'
           image: 'python'
-          imagetag: '2.7'
+          imagetag: '2.7-slim'
