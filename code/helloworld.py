@@ -6,12 +6,19 @@ from __future__ import absolute_import, print_function
 
 import argparse
 import errno
+import logging
 import os
 import sys
 import time
 
+logging.basicConfig(
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%dT%H:%M:%S')
 
-def hello(inputfile="data/names.txt", outputfile="results/greetings.txt", sleeptime=0.0):
+
+def hello(inputfile="data/names.txt", outputfile="results/greetings.txt",
+          sleeptime=0.0):
     """Say 'Hello' to given name and store the greeting to a file.
 
     Writes the greeting character by character. An optional waiting period
@@ -80,5 +87,9 @@ if __name__ == '__main__':
                         required=False)
 
     parsed_args = parser.parse_args(args)
+
+    logging.info("Parameters: inputfile={0} outputfile={1} sleeptime={2}"
+                 .format(parsed_args.inputfile, parsed_args.outputfile,
+                         parsed_args.sleeptime))
 
     hello(parsed_args.inputfile, parsed_args.outputfile, parsed_args.sleeptime)
