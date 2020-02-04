@@ -18,9 +18,9 @@ stages:
     scheduler:
       scheduler_type: 'singlestep-stage'
       parameters:
-        sleeptime: {stages: init, output: sleeptime, unwrap: True}
-        inputfile: {stages: init, output: inputfile, unwrap: true}
-        helloworld: {stages: init, output: helloworld, unwrap: true}
+        sleeptime: {step: init, output: sleeptime}
+        inputfile: {step: init, output: inputfile}
+        helloworld: {step: init, output: helloworld}
         outputfile: '{workdir}/greetings.txt'
       step:
         process:
