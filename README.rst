@@ -168,25 +168,24 @@ We can now install the REANA command-line client, run the analysis and download 
 .. code-block:: console
 
     $ # create new virtual environment
-    $ virtualenv ~/.virtualenvs/myreana
-    $ source ~/.virtualenvs/myreana/bin/activate
+    $ virtualenv ~/.virtualenvs/reana
+    $ source ~/.virtualenvs/reana/bin/activate
     $ # install REANA client
     $ pip install reana-client
     $ # connect to some REANA cloud instance
     $ export REANA_SERVER_URL=https://reana.cern.ch/
     $ export REANA_ACCESS_TOKEN=XXXXXXX
     $ # create a new workflow
-    $ reana-client create -n my-analysis
-    $ export REANA_WORKON=my-analysis
-    $ # upload input code and data to the workspace
-    $ reana-client upload ./data ./code
-    $ reana-client list
+    $ reana-client create -n myanalysis
+    $ export REANA_WORKON=myanalysis
+    $ # upload input code, data and workflow to the workspace
+    $ reana-client upload
     $ # start computational workflow
     $ reana-client start
     $ # should take about a minute
     $ reana-client status
     $ # list workspace files
-    $ reana-client list
+    $ reana-client ls
     $ # download output results
     $ reana-client download results/greetings.txt
 
@@ -204,4 +203,5 @@ The list of contributors in alphabetical order:
 - `Dinos Kousidis <https://orcid.org/0000-0002-4914-4289>`_
 - `Harri Hirvonsalo <https://orcid.org/0000-0002-5503-510X>`_
 - `Jan Okraska <https://orcid.org/0000-0002-1416-3244>`_
+- `Marco Vidal <https://orcid.org/0000-0002-9363-4971>`_
 - `Tibor Simko <https://orcid.org/0000-0001-7202-5803>`_

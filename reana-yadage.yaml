@@ -3,6 +3,8 @@ inputs:
   files:
     - code/helloworld.py
     - data/names.txt
+  directories:
+    - workflow/yadage
   parameters:
     sleeptime: 0
     inputfile: data/names.txt
@@ -12,4 +14,4 @@ workflow:
   file: workflow/yadage/workflow.yaml
 outputs:
   files:
-  - results/greetings.txt
+  - helloworld/greetings.txt

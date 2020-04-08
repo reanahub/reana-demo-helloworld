@@ -3,6 +3,8 @@ inputs:
   files:
     - code/helloworld.py
     - data/names.txt
+  directories:
+    - workflow/cwl
   parameters:
     input: workflow/cwl/helloworld-job.yml
 workflow:
@@ -10,4 +12,4 @@ workflow:
   file: workflow/cwl/helloworld.cwl
 outputs:
   files:
-   - results/greetings.txt
+   - outputs/greetings.txt
