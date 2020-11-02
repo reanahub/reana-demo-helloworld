@@ -2,8 +2,8 @@
  REANA example - "hello world"
 ===============================
 
-.. image:: https://img.shields.io/travis/reanahub/reana-demo-helloworld.svg
-   :target: https://travis-ci.org/reanahub/reana-demo-helloworld
+.. image:: https://github.com/reanahub/reana-demo-helloworld/workflows/CI/badge.svg
+   :target: https://github.com/reanahub/reana-demo-helloworld/actions
 
 .. image:: https://badges.gitter.im/Join%20Chat.svg
    :target: https://gitter.im/reanahub/reana?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge

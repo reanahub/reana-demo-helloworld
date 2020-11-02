@@ -1,0 +1,35 @@
+# This file is part of REANA.
+# Copyright (C) 2020 CERN.
+#
+# REANA is free software; you can redistribute it and/or modify it
+# under the terms of the MIT License; see LICENSE file for more details.
+
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 2.7
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install yadage
+
+      - name: Validate workflow
+        run: yadage-validate workflow/yadage/workflow.yaml | grep -q 'workflow validates'
+
+      - run: rm -rf results && mkdir results
+
+      - run: docker run -i --rm -v `pwd`/code:/code -v `pwd`/data:/data -v `pwd`/results:/results python:2.7-slim python /code/helloworld.py --sleeptime 0
+
+      - run: grep -q 'Hello Joe Bloggs!' results/greetings.txt
