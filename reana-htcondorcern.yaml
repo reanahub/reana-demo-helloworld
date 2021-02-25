@@ -15,6 +15,7 @@ workflow:
       - name: reana_demo_helloworld_htcondorcern
         environment: 'python:2.7-slim'
         compute_backend: htcondorcern
+        htcondor_max_runtime: espresso
         commands:
             - python "${helloworld}"
                 --inputfile "${inputfile}"

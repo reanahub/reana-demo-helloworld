@@ -36,3 +36,4 @@ stages:
           imagetag: '2.7-slim'
           resources:
             - compute_backend: htcondorcern
+            - htcondor_max_runtime: espresso

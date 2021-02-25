@@ -33,6 +33,7 @@ steps:
     hints:
       reana:
         compute_backend: htcondorcern
+        htcondor_max_runtime: espresso
     run: helloworld.tool
     in:
       helloworld: helloworld
