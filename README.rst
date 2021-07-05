@@ -104,11 +104,13 @@ The workflow can be represented as follows:
                 STOP
 
 
-Note that you can also use `CWL <http://www.commonwl.org/v1.0/>`_ or `Yadage
-<https://github.com/diana-hep/yadage>`_ workflow specifications:
+Note that you can also use `CWL <http://www.commonwl.org/v1.0/>`_, `Yadage
+<https://github.com/diana-hep/yadage>`_ or `Snakemake <https://snakemake.github.io>`_
+workflow specifications:
 
 - `Yadage workflow definition <workflow/yadage/workflow.yaml>`_
 - `CWL workflow definition <workflow/cwl/helloworld.cwl>`_
+- `Snakemake workflow definition <workflow/snakemake/Snakefile>`_
 
 5. Output results
 -----------------
@@ -158,10 +160,11 @@ the computational workflow steps and the expected outputs:
        - results/greetings.txt
 
 
-In case you are using CWL or Yadage workflow specifications:
+In case you are using CWL, Yadage or Snakemake workflow specifications:
 
 - `reana.yaml using CWL <reana-cwl.yaml>`_
 - `reana.yaml using Yadage <reana-yadage.yaml>`_
+- `reana.yaml using Snakemake <reana-snakemake.yaml>`_
 
 We can now install the REANA command-line client, run the analysis and download the resulting file:
 
