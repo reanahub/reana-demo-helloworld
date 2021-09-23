@@ -6,7 +6,12 @@
 
 name: CI
 
-on: [push, pull_request]
+on: 
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 7 * * 1'
+
 
 jobs:
   build:
@@ -18,18 +23,60 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: 2.7
+          python-version: 3.8
 
       - name: Install Python dependencies
         run: |
           pip install --upgrade pip
+          pip install virtualenv
+          pip install --pre reana-client
+
+      - name: Validate workflows
+        run: |        
+          for file in $FILES; do reana-client validate --environments -f $file; done
+        env:
+          FILES: reana.yaml reana-slurmcern.yaml reana-htcondorcern.yaml reana-yadage.yaml reana-yadage-slurmcern.yaml reana-yadage-htcondorcern.yaml reana-cwl.yaml reana-cwl-slurmcern.yaml reana-cwl-htcondorcern.yaml reana-snakemake.yaml
+
+      - name: Run serial workflow
+        run: |
+          rm -rf results && mkdir results
+          docker run -i --rm -v `pwd`/code:/code -v `pwd`/data:/data -v `pwd`/results:/results python:2.7-slim python /code/helloworld.py --sleeptime 0
+          grep -q 'Hello Joe Bloggs!' results/greetings.txt
+          rm -rf results
+      - name: Run Yadage workflow
+        run: |
+          rm -rf yadage-local-run/yadage-inputs && mkdir -p yadage-local-run/yadage-inputs
+          cd yadage-local-run
+          virtualenv ~/.virtualenvs/yadage
+          source ~/.virtualenvs/yadage/bin/activate
           pip install yadage
+          cp -a ../code ../data yadage-inputs
+          yadage-run . ../workflow/yadage/workflow.yaml -p sleeptime=0 -p inputfile=data/names.txt -p helloworld=code/helloworld.py -d initdir=`pwd`/yadage-inputs
+          grep -q 'Hello Joe Bloggs!' helloworld/greetings.txt
+          cd ..
+          rm -rf yadage-local-run ~/.virtualenvs/yadage
+      - name: Run CWL workflow
+        run: |
+          rm -rf cwl-local-run && mkdir -p cwl-local-run
+          cd cwl-local-run
+          virtualenv ~/.virtualenvs/cwl
+          source ~/.virtualenvs/cwl/bin/activate
+          pip install cwltool
+          cp -a ../code ../data . && cp ../workflow/cwl/helloworld-job.yml .
+          cwltool --quiet --outdir="./results" ../workflow/cwl/helloworld.cwl helloworld-job.yml
+          grep -q 'Hello Joe Bloggs!' results/greetings.txt
+          cd ..
+          rm -rf cwl-local-run ~/.virtualenvs/cwl
+      - name: Run Snakemake workflow
+        run: |
+          rm -rf snakemake-local-run && mkdir -p snakemake-local-run
+          cd snakemake-local-run
+          virtualenv ~/.virtualenvs/snakemake
+          source ~/.virtualenvs/snakemake/bin/activate
+          pip install snakemake
+          cp -a ../code ../data .
+          snakemake -s ../workflow/snakemake/Snakefile --configfile ../workflow/snakemake/inputs.yaml -p --cores 1
+          grep -q 'Hello Joe Bloggs!' results/greetings.txt
+          cd ..
+          rm -rf snakemake-local-run ~/.virtualenvs/snakemake
 
-      - name: Validate workflow
-        run: yadage-validate workflow/yadage/workflow.yaml | grep -q 'workflow validates'
-
-      - run: rm -rf results && mkdir results
-
-      - run: docker run -i --rm -v `pwd`/code:/code -v `pwd`/data:/data -v `pwd`/results:/results python:2.7-slim python /code/helloworld.py --sleeptime 0
-
-      - run: grep -q 'Hello Joe Bloggs!' results/greetings.txt

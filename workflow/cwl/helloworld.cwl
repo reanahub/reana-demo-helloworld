@@ -4,8 +4,8 @@
 # of the REANA platform, you can proceed as follows:
 #   $ mkdir cwl-local-run
 #   $ cd cwl-local-run
-#   $ cp ../code/* ../data/* ../workflow/cwl/helloworld-job.yml .
-#   $ cwltool --quiet --outdir="../outputs"
+#   $ cp -a ../code ../data . && cp ../workflow/cwl/helloworld-job.yml .
+#   $ cwltool --quiet --outdir="./results"
 #           ../workflow/cwl/helloworld.cwl helloworld-job.yml
 #   $ cat results/greetings.txt
 #   Hello Jane Doe!
