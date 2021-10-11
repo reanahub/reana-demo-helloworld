@@ -13,28 +13,43 @@ on:
     - cron: '0 7 * * 1'
 
 jobs:
-  validate:
+  cwl-validate:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Setup Python
-        uses: actions/setup-python@v2
+      - name: Validate CWL spec
+        uses: reanahub/reana-github-actions/local-validate@v1
         with:
-          python-version: 3.8
+          reana_specs: reana-cwl*.yaml
 
-      - name: Install Python dependencies
-        run: |
-          pip install --upgrade pip
-          pip install --pre reana-client
+  cwl-local-run:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Run CWL locally
+        uses: reanahub/reana-github-actions/local-run@v1
+        with:
+          commands: |
+            rm -rf cwl-local-run && mkdir -p cwl-local-run && cd cwl-local-run
+            pip install cwltool
+            cp -a ../code ../data . && cp ../workflow/cwl/helloworld-job.yml .
+            cwltool --quiet --outdir="./results" ../workflow/cwl/helloworld.cwl helloworld-job.yml
+            grep -q 'Hello Joe Bloggs!' results/greetings.txt
+            cd .. && rm -rf cwl-local-run
 
-      - name: Validate workflows
-        run: |
-          for file in $FILES; do reana-client validate --environments -f $file; done
-        env:
-          FILES: reana.yaml reana-slurmcern.yaml reana-htcondorcern.yaml reana-yadage.yaml reana-yadage-slurmcern.yaml reana-yadage-htcondorcern.yaml reana-cwl.yaml reana-cwl-slurmcern.yaml reana-cwl-htcondorcern.yaml reana-snakemake.yaml
+  serial-validate:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
 
+      - name: Validate serial spec
+        uses: reanahub/reana-github-actions/local-validate@v1
+        with:
+          reana_specs: reana.yaml reana-htcondorcern.yaml reana-slurmcern.yaml
 
   serial-local-run:
     runs-on: ubuntu-20.04
@@ -50,45 +65,16 @@ jobs:
             grep -q 'Hello Joe Bloggs!' results/greetings.txt
             rm -rf results
 
-  yadage-local-run:
+  snakemake-validate:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Run Yadage locally
-        uses: reanahub/reana-github-actions/local-run@v1
-        with:
-          commands: |
-            rm -rf yadage-local-run/yadage-inputs && mkdir -p yadage-local-run/yadage-inputs
-            cd yadage-local-run
-            virtualenv ~/.virtualenvs/yadage
-            source ~/.virtualenvs/yadage/bin/activate
-            pip install yadage
-            cp -a ../code ../data yadage-inputs
-            yadage-run . ../workflow/yadage/workflow.yaml -p sleeptime=0 -p inputfile=data/names.txt -p helloworld=code/helloworld.py -d initdir=`pwd`/yadage-inputs
-            grep -q 'Hello Joe Bloggs!' helloworld/greetings.txt
-            cd ..
-            rm -rf yadage-local-run ~/.virtualenvs/yadage
 
-  cwl-local-run:
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Run CWL locally
-        uses: reanahub/reana-github-actions/local-run@v1
+      - name: Validate Snakemake spec
+        uses: reanahub/reana-github-actions/local-validate@v1
         with:
-          commands: |
-            rm -rf cwl-local-run && mkdir -p cwl-local-run
-            cd cwl-local-run
-            virtualenv ~/.virtualenvs/cwl
-            source ~/.virtualenvs/cwl/bin/activate
-            pip install cwltool
-            cp -a ../code ../data . && cp ../workflow/cwl/helloworld-job.yml .
-            cwltool --quiet --outdir="./results" ../workflow/cwl/helloworld.cwl helloworld-job.yml
-            grep -q 'Hello Joe Bloggs!' results/greetings.txt
-            cd ..
-            rm -rf cwl-local-run ~/.virtualenvs/cwl
+          reana_specs: reana-snakemake*.yaml
 
   snakemake-local-run:
     runs-on: ubuntu-20.04
@@ -99,13 +85,36 @@ jobs:
         uses: reanahub/reana-github-actions/local-run@v1
         with:
           commands: |
-            rm -rf snakemake-local-run && mkdir -p snakemake-local-run
-            cd snakemake-local-run
-            virtualenv ~/.virtualenvs/snakemake
-            source ~/.virtualenvs/snakemake/bin/activate
+            rm -rf snakemake-local-run && mkdir -p snakemake-local-run && cd snakemake-local-run
             pip install snakemake
             cp -a ../code ../data .
             snakemake -s ../workflow/snakemake/Snakefile --configfile ../workflow/snakemake/inputs.yaml -p --cores 1
             grep -q 'Hello Joe Bloggs!' results/greetings.txt
-            cd ..
-            rm -rf snakemake-local-run ~/.virtualenvs/snakemake
+            cd .. && rm -rf snakemake-local-run
+
+  yadage-validate:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Validate Yadage spec
+        uses: reanahub/reana-github-actions/local-validate@v1
+        with:
+          reana_specs: reana-yadage*.yaml
+
+  yadage-local-run:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Run Yadage locally
+        uses: reanahub/reana-github-actions/local-run@v1
+        with:
+          commands: |
+            rm -rf yadage-local-run/yadage-inputs && mkdir -p yadage-local-run/yadage-inputs && cd yadage-local-run
+            pip install yadage
+            cp -a ../code ../data yadage-inputs
+            yadage-run . ../workflow/yadage/workflow.yaml -p sleeptime=0 -p inputfile=data/names.txt -p helloworld=code/helloworld.py -d initdir=`pwd`/yadage-inputs
+            grep -q 'Hello Joe Bloggs!' helloworld/greetings.txt
+            cd .. && rm -rf yadage-local-run
