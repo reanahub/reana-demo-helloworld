@@ -11,6 +11,9 @@
 .. image:: https://img.shields.io/github/license/reanahub/reana-demo-helloworld.svg
    :target: https://github.com/reanahub/reana-demo-helloworld/blob/master/LICENSE
 
+.. image:: https://www.reana.io/static/img/badges/launch-on-reana-at-cern.svg
+   :target: https://reana.cern.ch/launch?url=https%3A%2F%2Fgithub.com%2Freanahub%2Freana-demo-helloworld&specification=reana.yaml&name=reana-demo-helloworld
+
 About
 =====
 
@@ -81,7 +84,7 @@ trailing ``:2.7-slim`` makes sure we are using the Python 2.7 slim image
 version.
 
 4. Analysis workflow
-====================
+--------------------
 
 This analysis is very simple because it consists basically of running only the
 Python executable which will produce a text file.
@@ -123,11 +126,42 @@ The example produces a file greeting all names included in the
      Hello Jane Doe!
      Hello Joe Bloggs!
 
-Running the example on REANA cloud
+Running the above example on REANA
 ==================================
 
-We are now ready to run this example and on the `REANA <http://www.reana.io/>`_
-cloud.
+We are now ready to run this example and on the `REANA <http://www.reana.io/>`_ platform.
+
+There are two ways to execute this analysis example on REANA.
+
+If you would like to simply launch this analysis example on the REANA instance
+at CERN and inspect its results using the web interface, please click on one of the following badges,
+depending on which workflow system (CWL, Serial, Snakemake, Yadage) you would like to use:
+
+.. raw:: html
+
+   <a href="https://reana.cern.ch/launch?url=https%3A%2F%2Fgithub.com%2Freanahub%2Freana-demo-helloworld&specification=reana-cwl.yaml&name=reana-demo-helloworld-cwl">
+     <img src="https://www.reana.io/static/img/badges/launch-with-cwl-on-reana-at-cern.svg" alt="Launch with CWL on REANA@CERN badge" />
+   </a>
+   <br />
+   <a href="https://reana.cern.ch/launch?url=https%3A%2F%2Fgithub.com%2Freanahub%2Freana-demo-helloworld&specification=reana.yaml&name=reana-demo-helloworld-serial">
+     <img src="https://www.reana.io/static/img/badges/launch-with-serial-on-reana-at-cern.svg" alt="Launch with Serial on REANA@CERN badge" />
+   </a>
+   <br />
+   <a href="https://reana.cern.ch/launch?url=https%3A%2F%2Fgithub.com%2Freanahub%2Freana-demo-helloworld&specification=reana-snakemake.yaml&name=reana-demo-helloworld-snakemake">
+     <img src="https://www.reana.io/static/img/badges/launch-with-snakemake-on-reana-at-cern.svg" alt="Launch with Snakemake on REANA@CERN badge"/>
+   </a>
+   <br />
+   <a href="https://reana.cern.ch/launch?url=https%3A%2F%2Fgithub.com%2Freanahub%2Freana-demo-helloworld&specification=reana-yadage.yaml&name=reana-demo-helloworld-yadage">
+     <img src="https://www.reana.io/static/img/badges/launch-with-yadage-on-reana-at-cern.svg" alt="Launch with Yadage on REANA@CERN badge"/>
+   </a>
+
+|
+
+If you would like a step-by-step guide on how to use the REANA command-line
+client to launch this analysis example, please read on.
+
+Prepare files
+-------------
 
 First we need to create a `reana.yaml <reana.yaml>`_ file describing the
 structure of our analysis with its inputs, the code, the runtime environment,
@@ -166,7 +200,10 @@ In case you are using CWL, Yadage or Snakemake workflow specifications:
 - `reana.yaml using Yadage <reana-yadage.yaml>`_
 - `reana.yaml using Snakemake <reana-snakemake.yaml>`_
 
-We can now install the REANA command-line client, run the analysis and download the resulting file:
+Run the analysis
+----------------
+
+To use the command line client, follow the instructions below:
 
 .. code-block:: console
 
@@ -175,7 +212,7 @@ We can now install the REANA command-line client, run the analysis and download 
     $ source ~/.virtualenvs/reana/bin/activate
     $ # install REANA client
     $ pip install reana-client
-    $ # connect to some REANA cloud instance
+    $ # connect to some REANA cloud instance (e.g CERN instance)
     $ export REANA_SERVER_URL=https://reana.cern.ch/
     $ export REANA_ACCESS_TOKEN=XXXXXXX
     $ # create a new workflow
