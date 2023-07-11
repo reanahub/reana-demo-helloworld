@@ -32,5 +32,5 @@ stages:
             outputfile: outputfile
         environment:
           environment_type: 'docker-encapsulated'
-          image: 'python'
+          image: 'docker.io/library/python'
           imagetag: '2.7-slim'

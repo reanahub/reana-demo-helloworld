@@ -14,7 +14,7 @@ rule helloworld:
         compute_backend="htcondorcern",
         htcondor_max_runtime="espresso"
     container:
-        "docker://python:2.7-slim"
+        "docker://docker.io/library/python:2.7-slim"
     shell:
         "python {input.helloworld} "
         "--inputfile {input.inputfile} "

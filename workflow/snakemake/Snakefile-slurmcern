@@ -13,7 +13,7 @@ rule helloworld:
     resources:
         compute_backend="slurmcern"
     container:
-        "docker://python:2.7-slim"
+        "docker://docker.io/library/python:2.7-slim"
     shell:
         "python {input.helloworld} "
         "--inputfile {input.inputfile} "

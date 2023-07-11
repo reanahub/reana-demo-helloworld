@@ -6,7 +6,7 @@ class: CommandLineTool
 requirements:
   DockerRequirement:
     dockerPull:
-      python:2.7-slim
+      docker.io/library/python:2.7-slim
 
 baseCommand: python
 

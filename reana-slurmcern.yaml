@@ -13,7 +13,7 @@ workflow:
   specification:
     steps:
       - name: reana_demo_helloworld_slurmcern
-        environment: 'python:2.7-slim'
+        environment: 'docker.io/library/python:2.7-slim'
         compute_backend: slurmcern
         commands:
             - python "${helloworld}"

@@ -76,7 +76,7 @@ For example:
 .. code-block:: console
 
     $ cat environments/python/Dockerfile
-    FROM python:2.7-slim
+    FROM docker.io/library/python:2.7-slim
 
 Since we don't need any additional Python packages for this simple example to
 work, we can directly rely on the ``python`` image from the Docker Hub. The
@@ -183,7 +183,7 @@ the computational workflow steps and the expected outputs:
       type: serial
       specification:
         steps:
-          - environment: 'python:2.7-slim'
+          - environment: 'docker.io/library/python:2.7-slim'
             commands:
               - python "${helloworld}"
                   --inputfile "${inputfile}"
