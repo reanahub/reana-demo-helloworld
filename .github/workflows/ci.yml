@@ -123,7 +123,7 @@ jobs:
         with:
           commands: |
             rm -rf snakemake-local-run && mkdir -p snakemake-local-run && cd snakemake-local-run
-            pip install snakemake
+            pip install 'pulp<2.8' snakemake
             cp -a ../code ../data .
             snakemake -s ../workflow/snakemake/Snakefile --configfile ../workflow/snakemake/inputs.yaml -p --cores 1
             grep -q 'Hello Joe Bloggs!' results/greetings.txt
