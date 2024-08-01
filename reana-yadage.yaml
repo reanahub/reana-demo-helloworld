@@ -15,3 +15,8 @@ workflow:
 outputs:
   files:
   - helloworld/greetings.txt
+tests:
+  files:
+    - tests/yadage/log-messages.feature
+    - tests/yadage/run-duration.feature
+    - tests/yadage/workspace-files.feature
