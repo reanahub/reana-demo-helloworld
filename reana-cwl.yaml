@@ -13,3 +13,8 @@ workflow:
 outputs:
   files:
    - outputs/greetings.txt
+tests:
+  files:
+    - tests/cwl/log-messages.feature
+    - tests/cwl/run-duration.feature
+    - tests/cwl/workspace-files.feature

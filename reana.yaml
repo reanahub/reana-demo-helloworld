@@ -21,3 +21,8 @@ workflow:
 outputs:
   files:
    - results/greetings.txt
+tests:
+  files:
+    - tests/serial/log-messages.feature
+    - tests/serial/run-duration.feature
+    - tests/serial/workspace-files.feature
